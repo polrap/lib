@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="library">
+	<select id="list" resultType="library">
+		SELECT * FROM LIB ORDER BY "INDEX"
+	</select>
+	<select id="selectList" resultType="library">
+		SELECT *
+		FROM (
+		SELECT ROWNUM
+		RN, A.*
+		FROM (
+		SELECT *
+		FROM LIB
+		ORDER BY "INDEX"
+		) A
+		)
+		WHERE RN BETWEEN
+		#{start} AND #{end}
+	</select>
+	<select id="selectSearchList" resultType="library">
+		SELECT *
+		FROM (
+		SELECT ROWNUM RN, A.*
+		FROM (
+		SELECT *
+		FROM LIB
+		ORDER BY "INDEX"
+		) A
+		)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	<select id="selectListCase" parameterType="Map"
+		resultType="library">
+		SELECT *
+		FROM (
+		SELECT ROWNUM RN, A.*
+		FROM (
+		SELECT *
+		FROM LIB
+		where "TITLE" like '%'||#{keyword}||'%' or "PUBLISHER" like
+		'%'||#{keyword}||'%' or "AUTHOR" like '%'||#{keyword}||'%'
+		ORDER BY
+		"INDEX"
+		) A
+		)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	<select id="selectByIndex" parameterType="Long"
+		resultType="library">
+		SELECT * FROM LIB where "INDEX" =#{"INDEX"} order by
+		"INDEX"
+	</select>
+	<select id="selectByIsbn" parameterType="int"
+		resultType="library">
+		SELECT * FROM LIB where "ISBN" =#{"ISBN"} order by "INDEX"
+	</select>
+	<insert id="insert" parameterType="library">
+		insert into LIB ("INDEX",title, link, image, author, price,
+		publisher,
+		isbn, "DESCRIPTION")
+		values (LIB_INDEX.nextval,#{title}, #{link},
+		#{image}, #{author}, #{price}, #{publisher},
+		#{isbn}, #{description} )
+		<!-- <selectKey keyProperty="INDEX" resultType="int"> select NVL(MAX("INDEX"),0) 
+			from "LIB_INDEX" </selectKey> -->
+	</insert>
+
+	<select id="count" resultType="int">
+		select count(*) from LIB
+	</select>
+	<select id="selectBytitlelike" parameterType="String"
+		resultType="library">
+		SELECT * FROM LIB where title like %'#{title}'% order by
+		"INDEX"
+	</select>
+	<select id="bookTitle" parameterType="String"
+		resultType="library">
+		select * from LIB where title like '%#{title}%' order by
+		"INDEX"
+	</select>
+	<select id="listColumn" parameterType="Map" resultType="library">
+		select * from LIB
+		<if test="search.equals('TITLE') ">
+			where TITLE like '%' || #{keyword} || '%'
+		</if>
+		<if test="search.equals('AUTHOR') ">
+			where AUTHOR like '%' || #{keyword} || '%'
+		</if>
+		<if test="search.equals('PUBLISHER') ">
+			where PUBLISHER like '%' || #{keyword} || '%'
+		</if>
+		<if test="search.equals('ISBN') ">
+			where ISBN like '%' || #{keyword} || '%'
+		</if>
+		order by "INDEX"
+	</select>
+
+	<select id="listDefault" parameterType="String"
+		resultType="library">
+		select * from LIB
+		<if test="_parameter !=null and value !=''">
+			where "TITLE" like '%'||#{keyword}||'%' or "PUBLISHER"
+			like
+			'%'||#{keyword}||'%' or "AUTHOR" like '%'||#{keyword}||'%'
+		</if>
+		order by "INDEX"
+	</select>
+	<!-- <select id="listDefault" parameterType="String" resultType="library"> 
+		select * from LIB where <if test="_parameter !=null and value !=''"> "TITLE" 
+		like '%#{_parameter,jdbcType=VARCHAR}%' or "PUBLISHER" like '%#{_parameter,jdbcType=VARCHAR}%' 
+		or "AUTHOR" like '%#{_parameter,jdbcType=VARCHAR}%' </if> </select> -->
+	<!-- <update id="update" parameterType="member"> update member set name=#{name}, 
+		password=#{password} where email=#{eamil} </update> <delete id="delete" parameterType="member"> 
+		delete from member where email = #{email} and password=#{password} </delete> 
+		<delete id="deleteAll"> delete from member </delete> -->
+
+	<!-- <select id="listColumn" parameterType="Map" resultType="library"> select 
+		* from LIB where "${search}" like '%' || #{keyword} || '%' </select> -->
+	<!-- <select id="listDefault" parameterType="String" resultType="library"> 
+		select * from LIB where "TITLE" like '%'||#{keyword}||'%' or "PUBLISHER" 
+		like '%'||#{keyword}||'%' or "AUTHOR" like '%'||#{keyword}||'%' </select> -->
+	<!-- <select id="selectBytitlelike" parameterType="String" resultType="library"> 
+		SELECT * FROM LIB where title like %'#{title}'% </select> -->
+</mapper>
